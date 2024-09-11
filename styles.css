@@ -98,8 +98,36 @@ body {
     flex-direction: column;
     height: 100vh;
   }
+
   
   .hero, .tools {
     flex-grow: 1;
   }
+
+
+  @media (max-width: 768px) {
+    .tools {
+      flex-direction: column; /* Stack cards vertically on mobile */
+      padding: 20px;
+    }
+  
+    .tool-card {
+      width: 80%;
+      margin-bottom: 20px;
+    }
+  
+    .hero h1 {
+      font-size: 2rem;
+    }
+  
+    .hero p {
+      font-size: 1rem;
+    }
+  
+    .btn {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+    }
+  }
+  
   
