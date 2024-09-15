@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nour-WB - CIB Employee Tool</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Animated Header with slight transparency and fixed position for a smooth scroll effect -->
+    <header class="fixed-header">
+        <nav class="navbar">
+            <div class="container">
+                <img src="../assets/ezgif.com-svg-to-png-converter.png" alt="CIB Logo" class="logo">
+                <h1>CIB Employee Tools</h1>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero section with a gradient background and subtle animations -->
+    <section class="doc-hero">
+        <div class="overlay">
+            <h1>nour-WB - WhatsApp Bulk Application</h1>
+            <p>Streamline your messaging and enhance productivity with the nour-WB tool, exclusively for CIB Bank
+                employees.</p>
+            <a href="#content" class="cta-btn">Get Started</a>
+        </div>
+    </section>
+
+    <section id="content" class="doc-content">
+        <h2>Getting Started</h2>
+        <div class="tips-section">
+            <p>Ensure a smooth experience by following these guidelines:</p>
+            <ul>
+                <li>Ensure you are connected to the internet.</li>
+                <li>Verify app permissions and enable them fully.</li>
+                <li>Dark mode is supported, but not fully tested.</li>
+                <li>Ensure your phone language is set to English (not Arabic).</li>
+                <li>If WhatsApp crashes, adjust the message delay between 5-10 seconds.</li>
+                <li><span class="warning">Important:</span> Group extractor is known to crash the app—do not use it.
+                </li>
+                <li>WhatsApp Business is supported but not fully tested.</li>
+            </ul>
+        </div>
+
+        <!-- Modern card-based layout for importing contacts -->
+        <h2>Importing Contacts</h2>
+        <div class="contact-import">
+            <details class="card">
+                <summary>Method 1: From Contacts</summary>
+                <p>Select contacts directly from your phone’s contact list.</p>
+            </details>
+            <details class="card">
+                <summary>Method 2: Manual Input</summary>
+                <p>Choose the flag, and type the number without the 0 at first</p>
+                <p>✅ 1008396119</p>
+                <p>❌ 01008396119</p>
+            </details>
+            <details class="card">
+                <summary>Method 3: Import from Excel 1</summary>
+                <p>The first column should contain names only and the second one contains numbers</p>
+                <p>Number should have the “+” with the country code like: +201008396119</p>
+                <p>❌ 01008396119</p>
+                <p>❌ 1008396119</p>
+                <p>✅ +201008396119</p>
+            </details>
+            <details class="card">
+                <summary>Method 4: Import from Excel 2</summary>
+                <p>Same as Excel 1</p>
+                <p>Numbers shouldn’t have a “+” sign or country code, just 1008396119</p>
+                <p>❌ 01008396119</p>
+                <p>❌ 201008396119</p>
+                <p>✅ 1008396119</p>
+            </details>
+            <details class="card">
+                <summary>Method 5: CSV Import</summary>
+                <p>Upload a comma-separated CSV like this: <code>nour,1008396119</code></p>
+            </details>
+        </div>
+
+
+        <!-- A collapsible FAQ-style troubleshooting section with smooth animation -->
+        <div class="faq-section">
+            <h2>Troubleshooting</h2>
+            <details>
+                <summary>App Permissions Issue</summary>
+                <p>Ensure that all permissions are enabled for the app to function properly. Go to Settings > Apps >
+                    Permissions.</p>
+            </details>
+            <details>
+                <summary>WhatsApp Slows Down</summary>
+                <p>If WhatsApp is slow or crashes, try adjusting the message delay in the app settings. A 5000-10000 ms
+                    delay works best.</p>
+            </details>
+            <details>
+                <summary>Group Extractor Crashes</summary>
+                <p>Due to ongoing development, the group extractor is not functional and will cause the app to crash.
+                    Avoid using it for now.</p>
+            </details>
+        </div>
+
+        <!-- Beautiful gradient button with hover animation -->
+        <div class="download-section">
+            <h3>Download the nour-WB App</h3>
+            <a href="nour-WB.apk" class="btn-gradient">Download nour-WB</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 CIB Bank. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+
+</html>

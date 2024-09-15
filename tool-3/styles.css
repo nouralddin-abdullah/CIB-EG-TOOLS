@@ -1,0 +1,177 @@
+/* General Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f4ff;
+  color: #333;
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+}
+
+/* Fixed Header with slight transparency */
+.fixed-header {
+  background-color: rgba(0, 71, 126, 0.85);
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+
+.navbar h1 {
+  color: white;
+  font-size: 1.5rem;
+}
+
+.logo {
+  max-height: 50px;
+}
+
+/* Hero Section with gradient and hover effect */
+.doc-hero {
+  background: linear-gradient(to bottom right, #00477e, #0072a8);
+  color: white;
+  text-align: center;
+  padding: 150px 20px;
+  position: relative;
+  margin-bottom: 50px;
+}
+
+.doc-hero .overlay {
+  padding: 50px;
+}
+
+.doc-hero h1 {
+  font-size: 3rem;
+}
+
+.doc-hero p {
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+}
+
+.cta-btn {
+  background-color: #ffb700;
+  color: white;
+  padding: 12px 30px;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 25px;
+  transition: background-color 0.3s ease;
+}
+
+.cta-btn:hover {
+  background-color: #ff9f00;
+}
+
+/* Content Section */
+.doc-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.doc-content h2 {
+  color: #00477e;
+  font-size: 2rem;
+  border-bottom: 2px solid #ffb700;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+/* Contact Import Cards */
+.contact-import {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+
+
+  .card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px; /* Adds spacing between the cards */
+    transition: transform 0.3s ease;
+    width: 100%; /* Makes each card take up full width */
+  }
+
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+/* FAQ Section */
+.faq-section details {
+  background-color: #fff;
+  padding: 10px 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+summary {
+  font-weight: 600;
+}
+
+.card summary {
+  font-weight: 600;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+details p {
+  padding: 10px 0 0;
+}
+
+/* Download Section */
+.download-section {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.btn-gradient {
+  background: linear-gradient(to right, #ffb700, #ff7700);
+  color: white;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(to right, #ff9f00, #ff4d00);
+}
+
+/* Footer */
+footer {
+  background-color: #00477e;
+  padding: 20px 0;
+  text-align: center;
+  color: white;
+}
+
+.card[open] {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Slightly darker shadow when open */
+    transform: translateY(-5px); /* Lift when open */
+  }
+  
+  .card p {
+    padding-top: 10px;
+  }
