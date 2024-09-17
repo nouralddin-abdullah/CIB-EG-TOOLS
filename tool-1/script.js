@@ -1,255 +1,252 @@
-function toggleInterestRateMode() {
-    const isConsistent = document.getElementById(
-      "consistentRateSwitch"
-    ).checked;
-    const interestRatesContainer = document.getElementById(
-      "interestRatesContainer"
-    );
-    const consistentRateContainer = document.getElementById(
-      "consistentRateContainer"
-    );
-
-    if (isConsistent) {
-      interestRatesContainer.innerHTML = ""; // Clear the variable interest rate fields
-      consistentRateContainer.style.display = "block"; // Show consistent rate input
-    } else {
-      consistentRateContainer.style.display = "none"; // Hide consistent rate input
-      generateInterestFields(); // Show variable rate fields
-    }
-  }
-
-  function generateInterestFields() {
-    const isConsistent = document.getElementById(
-      "consistentRateSwitch"
-    ).checked;
-    const time = document.getElementById("time").value;
-    const container = document.getElementById("interestRatesContainer");
-
-    if (!isConsistent) {
-      container.innerHTML = ""; // Clear previous fields
-      // Generate interest rate inputs for each year
-      for (let i = 1; i <= time; i++) {
-        container.innerHTML += `
-                    <div class="mb-3">
-                        <label for="rateYear${i}" class="form-label">Interest Rate for Year ${i} (%)</label>
-                        <input type="number" class="form-control" id="rateYear${i}">
-                    </div>
-                `;
-      }
-    }
-  }
-
-  function calculateInterestForEachYear(
-    amount,
-    time,
-    frequency,
-    startDate
-  ) {
-    let totalInterest = 0;
-    let isConsistent = document.getElementById(
-      "consistentRateSwitch"
-    ).checked;
-    let rate;
-    let faceValue = amount; // Always use the initial principal amount for interest calculation
-    let results = [];
-
-    if (isConsistent) {
-      rate = parseFloat(document.getElementById("consistentRate").value);
-    }
-
-    let currentDate = new Date(startDate);
-
-    for (let i = 1; i <= time; i++) {
-      if (!isConsistent) {
-        rate = parseFloat(document.getElementById(`rateYear${i}`).value);
+        // Toggle between consistent and variable interest rate
+        function toggleInterestRateMode() {
+          const isConsistent = document.getElementById("consistentRateSwitch").checked;
+          const interestRatesContainer = document.getElementById("interestRatesContainer");
+          const consistentRateContainer = document.getElementById("consistentRateContainer");
+          if (isConsistent) {
+              interestRatesContainer.innerHTML = ""; // Clear the variable interest rate fields
+              consistentRateContainer.style.display = "block"; // Show consistent rate input
+          } else {
+              consistentRateContainer.style.display = "none"; // Hide consistent rate input
+              generateInterestFields(); // Show variable rate fields
+          }
       }
 
-      let yearlyInterest = faceValue * (rate / 100); // Calculate interest based on face value
+      // Generate interest rate fields dynamically based on the number of years
+      function generateInterestFields() {
+          const isConsistent = document.getElementById("consistentRateSwitch").checked;
+          const time = document.getElementById("time").value;
+          const container = document.getElementById("interestRatesContainer");
+          if (!isConsistent) {
+              container.innerHTML = ""; // Clear previous fields
+              for (let i = 1; i <= time; i++) {
+                  container.innerHTML += `
+                      <div class="mb-3">
+                          <label for="rateYear${i}" class="form-label">Interest Rate for Year ${i} (%)</label>
+                          <input type="number" class="form-control" id="rateYear${i}" required>
+                      </div>`;
+              }
+          }
+      }
 
-      let interestAddedDate = new Date(currentDate);
+      // Calculate interest based on the selected options
+      function calculateInterestForEachYear(amount, time, frequency, startDate) {
+          let totalInterest = 0;
+          const isConsistent = document.getElementById("consistentRateSwitch").checked;
+          const isAccumulated = document.getElementById("accumulatedInterestSwitch").checked;
+          let rate;
+          let totalAmount = amount;
+          let results = [];
+          let cumulativeInterest = 0;
 
-      if (frequency === "daily") {
-        let dailyInterest = yearlyInterest / 365;
-        for (let j = 0; j < 365; j++) {
-          interestAddedDate.setDate(interestAddedDate.getDate() + 1);
-          totalInterest += dailyInterest;
-          results.push({
-            date: new Date(interestAddedDate),
-            interest: dailyInterest,
-            total: faceValue + totalInterest, // Total = faceValue + accumulated interest
+          if (isConsistent) {
+              rate = parseFloat(document.getElementById("consistentRate").value);
+          }
+
+          let currentDate = new Date(startDate);
+          const totalPeriods = frequency === "monthly" ? time * 12 : frequency === "daily" ? time * 365 : time;
+
+          for (let i = 1; i <= totalPeriods; i++) {
+              if (!isConsistent) {
+                  rate = parseFloat(document.getElementById(`rateYear${Math.ceil(i / (frequency === "monthly" ? 12 : 1))}`).value);
+              }
+
+              const periodRate = rate / (frequency === "monthly" ? 12 : frequency === "daily" ? 365 : 1);
+              const interest = amount * (periodRate / 100);
+
+              let interestForPeriod; // Declare interestForPeriod here
+
+              // Accumulated (Compound) Interest Calculation
+              if (isAccumulated) {
+                  const previousTotalAmount = totalAmount;
+                  const compInterest = totalAmount * (periodRate / 100);
+                  totalAmount += compInterest;
+                  interestForPeriod = totalAmount - previousTotalAmount;
+              } else {
+                  totalInterest += interest;
+                  interestForPeriod = interest;
+              }
+
+              cumulativeInterest += interestForPeriod;
+
+              const interestAddedDate = new Date(currentDate);
+
+              if (frequency === "monthly") {
+                  interestAddedDate.setMonth(currentDate.getMonth() + 1);
+              } else if (frequency === "daily") {
+                  interestAddedDate.setDate(currentDate.getDate() + 1);
+              } else {
+                  interestAddedDate.setFullYear(currentDate.getFullYear() + 1);
+              }
+
+              results.push({
+                  date: new Date(interestAddedDate),
+                  interest: interestForPeriod,
+                  cumulativeInterest: cumulativeInterest,
+                  total: isAccumulated ? totalAmount : amount + totalInterest
+              });
+
+              currentDate = interestAddedDate;
+          }
+
+          const totalMaturity = isAccumulated ? totalAmount : amount + totalInterest;
+          return {
+              totalInterest: isAccumulated ? totalAmount - amount : totalInterest,
+              totalMaturity: totalMaturity,
+              interestData: results,
+          };
+      }
+
+      function downloadExcel(interestData) {
+          // Convert interest data to CSV format
+          let csvContent = "data:text/csv;charset=utf-8,";
+          csvContent += "Date,Interest Gained This Period (EGP),Total Interest Till This Period (EGP),Account Balance + Interest (EGP)\n";
+
+          interestData.forEach(function (rowArray) {
+              let row = rowArray.date.toLocaleDateString() + "," + rowArray.interest.toFixed(2) + "," + rowArray.cumulativeInterest.toFixed(2) + "," + rowArray.total.toFixed(2) + "\n";
+              csvContent += row;
           });
-        }
-      } else if (frequency === "monthly") {
-        let monthlyInterest = yearlyInterest / 12;
-        for (let j = 0; j < 12; j++) {
-          interestAddedDate.setMonth(interestAddedDate.getMonth() + 1);
-          totalInterest += monthlyInterest;
-          results.push({
-            date: new Date(interestAddedDate),
-            interest: monthlyInterest,
-            total: faceValue + totalInterest,
+
+          // Create a download link and trigger the download
+          var encodedUri = encodeURI(csvContent);
+          var link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download",
+              "interest_data.csv");
+          document.body.appendChild(link);
+          link.click();
+
+      }
+
+
+      function showResult() {
+          const amount = parseFloat(document.getElementById("amount").value);
+          const time = parseFloat(document.getElementById("time").value);
+          const frequency = document.getElementById("frequency").value;
+          const startDate = document.getElementById("startDate").value;
+          const result = calculateInterestForEachYear(amount, time, frequency, startDate);
+          const totalInterest = result.totalInterest;
+          const totalMaturity = result.totalMaturity;
+          const interestData = result.interestData;
+
+          let rate;
+          if (document.getElementById("consistentRateSwitch").checked) {
+              rate = parseFloat(document.getElementById("consistentRate").value);
+          } else {
+              rate = parseFloat(document.getElementById("rateYear1").value); // Use the first year's rate for one period
+          }
+
+          // Calculate the interest for one frequency period
+          const onePeriodInterest = (amount * (rate / 100)) / (frequency === "daily" ? 365 : frequency === "monthly" ? 12 : 1);
+
+          document.getElementById("onePeriodInterest").innerHTML =
+              "Interest for 1 " + frequency + ": " + onePeriodInterest.toFixed(2) + " EGP";
+          document.getElementById("totalInterest").innerHTML = "Total Interest: " + totalInterest.toFixed(2) + " EGP";
+          document.getElementById("totalMaturity").innerHTML = "Total Maturity (FV + Interest): " + totalMaturity.toFixed(2) + " EGP";
+
+          generatePDF(amount, totalInterest, totalMaturity, time, frequency, startDate, interestData);
+          document.getElementById("pdfButtons").style.display = "block";
+          document.getElementById("downloadExcel").addEventListener("click", function () {
+              downloadExcel(interestData);
           });
-        }
-      } else if (frequency === "yearly") {
-        interestAddedDate.setFullYear(interestAddedDate.getFullYear() + 1);
-        totalInterest += yearlyInterest;
-        results.push({
-          date: new Date(interestAddedDate),
-          interest: yearlyInterest,
-          total: faceValue + totalInterest,
-        });
       }
 
-      currentDate = interestAddedDate; // Move to the next year
-    }
+      // Generate PDF with interest data
+      function generatePDF(amount, totalInterest, totalMaturity, time, frequency, startDate, interestData) {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
 
-    return {
-      totalInterest: totalInterest,
-      totalMaturity: faceValue + totalInterest,
-      interestData: results,
-    };
-  }
+          // Set initial Y position for the content
+          let yPosition = 20;
+          const pageHeight = doc.internal.pageSize.height;
+          const lineHeight = 10;
 
-  function showResult() {
-    const amount = parseFloat(document.getElementById("amount").value);
-    const time = parseFloat(document.getElementById("time").value);
-    const frequency = document.getElementById("frequency").value;
-    const startDate = document.getElementById("startDate").value;
+          // Add headers
+          doc.text("CIB Bank Employee Tools", 20, yPosition);
+          yPosition += lineHeight;
+          doc.text("Deposit Calculation Report", 20, yPosition);
+          yPosition += lineHeight;
+          doc.text("Principal Amount: " + amount.toFixed(2) + " EGP", 20, yPosition);
+          yPosition += lineHeight;
+          doc.text("Total Interest: " + totalInterest.toFixed(2) + " EGP", 20, yPosition);
+          yPosition += lineHeight;
+          doc.text("Total Maturity (FV + Interest): " + totalMaturity.toFixed(2) + " EGP", 20, yPosition);
+          yPosition += lineHeight;
+          doc.text("Duration: " + time + " years", 20, yPosition);
+          yPosition += lineHeight;
+          doc.text("Interest Frequency: " + frequency.charAt(0).toUpperCase() + frequency.slice(1), 20, yPosition);
+          yPosition += lineHeight;
+          doc.text("Start Date: " + new Date(startDate).toLocaleDateString(), 20, yPosition);
+          yPosition += lineHeight + 5;
 
-    const result = calculateInterestForEachYear(
-      amount,
-      time,
-      frequency,
-      startDate
-    );
-    const totalInterest = result.totalInterest;
-    const totalMaturity = result.totalMaturity;
-    const interestData = result.interestData;
+          // Draw table headers with two rows for long titles
+          doc.text("Date", 20, yPosition);
+          doc.text("Interest Gained", 80, yPosition);
+          doc.text("This Period (EGP)", 80, yPosition + 5); // Add second row for long headers
+          doc.text("Total Interest", 130, yPosition);
+          doc.text("Till This Period (EGP)", 130, yPosition + 5); // New column for cumulative interest
+          doc.text("Account Balance + Interest (EGP)", 180, yPosition);
+          yPosition += lineHeight + 5;
 
-    // Calculate the interest for one frequency period
-    let rate;
-    if (document.getElementById("consistentRateSwitch").checked) {
-      rate = parseFloat(document.getElementById("consistentRate").value);
-    } else {
-      rate = parseFloat(document.getElementById("rateYear1").value); // Use the first year's rate for one frequency
-    }
+          // Loop through interestData and add each row to the table
+          interestData.forEach((entry) => {
+              // Add new page if content exceeds page height
+              if (yPosition > pageHeight - 20) {
+                  doc.addPage();
+                  yPosition = 20; // Reset yPosition for the new page
 
-    // Calculate the interest for one frequency period based on the frequency selected
-    let onePeriodInterest;
-    if (frequency === "daily") {
-      onePeriodInterest = (amount * (rate / 100)) / 365; // Daily interest
-    } else if (frequency === "monthly") {
-      onePeriodInterest = (amount * (rate / 100)) / 12; // Monthly interest
-    } else if (frequency === "yearly") {
-      onePeriodInterest = amount * (rate / 100); // Yearly interest
-    }
+                  // Redraw the table headers on the new page
+                  doc.text("Date", 20, yPosition);
+                  doc.text("Interest Gained", 80, yPosition);
+                  doc.text("This Period (EGP)", 80, yPosition + 5);
+                  doc.text("Total Interest", 130, yPosition);
+                  doc.text("Till This Period (EGP)", 130, yPosition + 5);
+                  doc.text("Account Balance + Interest (EGP)", 180, yPosition);
+                  yPosition += lineHeight + 5;
+              }
 
-    // Display the interest for one frequency period at the top
-    document.getElementById("onePeriodInterest").innerHTML =
-      "Interest for 1 " +
-      frequency +
-      ": " +
-      onePeriodInterest.toFixed(2) +
-      " EGP";
+              // Add table content
+              doc.text(new Date(entry.date).toLocaleDateString(), 20, yPosition);
+              doc.text(entry.interest.toFixed(2), 80, yPosition); // Interest for this period
+              doc.text(entry.cumulativeInterest.toFixed(2), 130, yPosition); // Cumulative interest till this period
+              doc.text(entry.total.toFixed(2), 180, yPosition); // Total balance + interest
+              yPosition += lineHeight;
+          });
 
-    // Update the total interest and maturity in the HTML
-    document.getElementById("totalInterest").innerHTML =
-      "Total Interest: " + totalInterest.toFixed(2) + " EGP";
-    document.getElementById("totalMaturity").innerHTML =
-      "Total Maturity (FV + Interest): " +
-      totalMaturity.toFixed(2) +
-      " EGP";
+          // Generate PDF Blob and URLs for opening and printing
+          const pdfBlob = doc.output("blob");
+          const pdfUrl = URL.createObjectURL(pdfBlob);
 
-    // Generate the PDF report
-    generatePDF(
-      amount,
-      totalInterest,
-      totalMaturity,
-      time,
-      frequency,
-      startDate,
-      interestData
-    );
-  }
+          // Remove existing event listeners (to avoid conflicts with previous calculations)
+          const openButton = document.getElementById("openPDF");
+          const printButton = document.getElementById("printPDF");
+          const excelButton = document.getElementById("downloadExcel");
 
-  function generatePDF(
-    amount,
-    totalInterest,
-    totalMaturity,
-    time,
-    frequency,
-    startDate,
-    interestData
-  ) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let yPosition = 30; // Start Y position for the content
-    const pageHeight = 280; // Height of the page
+          openButton.replaceWith(openButton.cloneNode(true)); // Reset button to remove all listeners
+          printButton.replaceWith(printButton.cloneNode(true));
+          excelButton.replaceWith(excelButton.cloneNode(true));
 
-    // Add content to the PDF
-    doc.text("CIB Bank Employee Tools", 20, 10);
-    doc.text("Deposit Calculation Report", 20, 20);
-    doc.text("-----------------------------------", 20, 30);
-    yPosition += 10;
+          // Get new button elements after reset
+          const newOpenButton = document.getElementById("openPDF");
+          const newPrintButton = document.getElementById("printPDF");
+          const newExcelButton = document.getElementById("downloadExcel");
 
-    doc.text(`Principal Amount: ${amount.toFixed(2)} EGP`, 20, yPosition);
-    yPosition += 10;
-    doc.text(
-      `Total Interest: ${totalInterest.toFixed(2)} EGP`,
-      20,
-      yPosition
-    );
-    yPosition += 10;
-    doc.text(
-      `Total Maturity (FV + Interest): ${totalMaturity.toFixed(2)} EGP`,
-      20,
-      yPosition
-    );
-    yPosition += 10;
-    doc.text(`Duration: ${time} years`, 20, yPosition);
-    yPosition += 10;
-    doc.text(
-      `Interest Frequency: ${
-        frequency.charAt(0).toUpperCase() + frequency.slice(1)
-      }`,
-      20,
-      yPosition
-    );
-    yPosition += 10;
-    doc.text(
-      `Start Date: ${new Date(startDate).toLocaleDateString()}`,
-      20,
-      yPosition
-    );
-    yPosition += 10;
-    doc.text("-----------------------------------", 20, yPosition);
-    yPosition += 10;
+          // Define event handler functions
+          function openPDFHandler() {
+              window.open(pdfUrl, "_blank"); // Open new PDF in a tab
+          }
 
-    // Table headers
-    doc.text("Date", 20, yPosition);
-    doc.text("Interest Added (EGP)", 80, yPosition);
-    doc.text("Total Amount (EGP)", 150, yPosition);
-    yPosition += 10;
+          function printPDFHandler() {
+              const iframe = document.createElement("iframe");
+              iframe.style.display = "none";
+              iframe.src = pdfUrl;
+              document.body.appendChild(iframe);
+              iframe.contentWindow.focus();
+              iframe.contentWindow.print(); // Trigger print
+          }
 
-    // Loop through interestData and add to the table
-    interestData.forEach((entry) => {
-      if (yPosition > pageHeight - 20) {
-        doc.addPage(); // Add a new page if the content exceeds one page
-        yPosition = 30; // Reset yPosition for new page
+          // Add new event listeners for Open and Print PDF buttons
+          newOpenButton.addEventListener("click", openPDFHandler);
+          newPrintButton.addEventListener("click", printPDFHandler);
+
       }
-      doc.text(new Date(entry.date).toLocaleDateString(), 20, yPosition);
-      doc.text(entry.interest.toFixed(2), 80, yPosition);
-      doc.text(entry.total.toFixed(2), 150, yPosition);
-      yPosition += 10; // Move down for each row
-    });
-
-    // Instead of saving, open the PDF in a new tab
-    const string = doc.output("blob"); // Get the PDF as a blob
-    const blob = new Blob([string], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank"); // Open PDF in a new tab
-    
-  }
-  document.addEventListener("DOMContentLoaded", function () {
-      generateInterestFields(); // Call the function to generate fields by default
-    });
